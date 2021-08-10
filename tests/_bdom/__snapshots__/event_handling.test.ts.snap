@@ -1,63 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`simple event handling  1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
-      this.refs = [ref0];
-      this.data = [];
-      const handler = this.handleEvent;
       ref0.addEventListener(\\"click\\", handler.bind(this, 0));
-      this.update(data);
+      this.refs = [ref0];
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
+      const current = this.data;
+      const next = block.data;
+      this.data = next;
     }
-    update(data) {
-      const currentData = this.data;
-      const nextData = data.data;
-      this.data = nextData;
-    }
-    handleEvent(n) {
-      const handler = this.data[n];
-      if (typeof handler === \\"function\\") {
-        handler();
-      } else {
-        const [owner, method] = handler;
-        owner[method]();
-      }
-    }
-  }
+  };
 }"
 `;
 
 exports[`simple event handling, with function 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
-      this.refs = [ref0];
-      this.data = [];
-      const handler = this.handleEvent;
       ref0.addEventListener(\\"click\\", handler.bind(this, 0));
-      this.update(data);
+      this.refs = [ref0];
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
+      const current = this.data;
+      const next = block.data;
+      this.data = next;
     }
-    update(data) {
-      const currentData = this.data;
-      const nextData = data.data;
-      this.data = nextData;
-    }
-    handleEvent(n) {
-      const handler = this.data[n];
-      if (typeof handler === \\"function\\") {
-        handler();
-      } else {
-        const [owner, method] = handler;
-        owner[method]();
-      }
-    }
-  }
+  };
 }"
 `;

@@ -1,42 +1,48 @@
-import { Anchor, BlockText, Operations } from "./types";
+import { Anchor, Block } from "./types";
 
-// -----------------------------------------------------------------------------
-//  Text blocks
-// -----------------------------------------------------------------------------
+export interface BlockText extends Block<BlockText> {
+  el: Text | null;
+  text: string;
+}
 
 export function text(text: string): BlockText {
   return {
-    ops: TEXT_OPS,
-    el: undefined,
-    data: text,
-    content: undefined,
+    mountBefore,
+    patch,
+    moveBefore,
+    remove,
+    firstChildNode,
+    el: null,
+    text,
   };
 }
 
-const TEXT_OPS: Operations = {
-  mountBefore(block: any, anchor: Anchor) {
-    let el = document.createTextNode(block.data);
-    block.el = el;
-    anchor.before(el);
-  },
-  patch(block1: any, block2: any) {
-    if (block1 === block2) {
-      return;
-    }
-    let text = block2.data as any;
-    if (block1.data !== text) {
-      block1.data = text;
-      block1.el!.textContent = text;
-    }
-  },
-  moveBefore(block: any, anchor: any) {
-    anchor.before(block.el);
-  },
-  remove(block: any) {
-    const el = block.el!;
-    el.parentElement!.removeChild(el);
-  },
-  firstChildNode(block: any): ChildNode | null {
-    return block.el;
-  },
-};
+function mountBefore(this: BlockText, anchor: Anchor) {
+  let el = document.createTextNode(this.text);
+  this.el = el;
+  anchor.before(el);
+}
+
+function patch(this: BlockText, block: BlockText) {
+  if (this === block) {
+    return;
+  }
+  let text = block.text as any;
+  if (this.text !== text) {
+    this.text = text;
+    this.el!.textContent = text;
+  }
+}
+
+function moveBefore(this: BlockText, anchor: any) {
+  anchor.before(this.el);
+}
+
+function remove(this: BlockText) {
+  const el = this.el!;
+  el.parentElement!.removeChild(el);
+}
+
+function firstChildNode(this: BlockText): ChildNode | null {
+  return this.el;
+}

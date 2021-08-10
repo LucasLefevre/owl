@@ -3,8 +3,8 @@ import { _compileBlock } from "../../src/_bdom/element";
 import { makeTestFixture } from "../helpers";
 
 function makeBlock(str: string) {
-  const { fn } = _compileBlock(str);
-  expect(fn.toString()).toMatchSnapshot();
+  const { builder } = _compileBlock(str);
+  expect(builder.toString()).toMatchSnapshot();
   return origMakeBlock(str);
 }
 
@@ -25,10 +25,10 @@ afterEach(() => {
 describe("text and elem blocks", () => {
   test("simple text block", async () => {
     const tree = text("foo");
-    expect(tree.el).toBe(undefined);
+    expect(tree.el).toBe(null);
     mount(tree, fixture);
     expect(fixture.innerHTML).toBe("foo");
-    expect(tree.el).not.toBe(undefined);
+    expect(tree.el).not.toBe(null);
   });
 
   test("patching a simple text block", async () => {
@@ -179,13 +179,13 @@ describe("misc", () => {
     let barCounter = 0;
     let fooValue = "foo";
     let barValue = "bar";
-    Object.defineProperty(foo, "data", {
+    Object.defineProperty(foo, "text", {
       get() {
         fooCounter++;
         return fooValue;
       },
     });
-    Object.defineProperty(bar, "data", {
+    Object.defineProperty(bar, "text", {
       get() {
         barCounter++;
         return barValue;

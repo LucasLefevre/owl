@@ -3,8 +3,8 @@ import { _compileBlock } from "../../src/_bdom/element";
 import { makeTestFixture } from "../helpers";
 
 function makeBlock(str: string) {
-  const { fn } = _compileBlock(str);
-  expect(fn.toString()).toMatchSnapshot();
+  const { builder } = _compileBlock(str);
+  expect(builder.toString()).toMatchSnapshot();
   return origMakeBlock(str);
 }
 

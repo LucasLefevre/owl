@@ -1,328 +1,364 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`text and elem blocks block with 2 dynamic text nodes 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
       let ref1 = this.el.firstChild.nextSibling.firstChild;
+      const data = this.data;
+      ref0.textContent = data[0];
+      ref1.textContent = data[1];
       this.refs = [ref0, ref1];
-      this.data = [];
-      this.update(data);
-    }
-    update(data) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      if (nextData[0] !== currentData[0]) { refs[0].textContent = nextData[0]}
-      if (nextData[1] !== currentData[1]) { refs[1].textContent = nextData[1]}
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      if (next[0] !== current[0]) { refs[0].textContent = next[0]}
+      if (next[1] !== current[1]) { refs[1].textContent = next[1]}
+      this.data = next;
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with 2 subblocks 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
       let ref1 = this.el.firstChild.nextSibling;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
+      let child1 = children[1]; if (child1) { child1.mountBefore(ref1); }
       this.refs = [ref0, ref1];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
-      let currentChild1 = currentChildren[1], child1 = children[1];
-      if (currentChild1) { if (child1) { currentChild1.ops.patch(currentChild1, child1); } else { currentChild1.ops.remove(currentChild1); currentChildren[1] = null; } }
-      else if (child1) { child1.ops.mountBefore(child1, refs[1]); currentChildren[1] = child1 }
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
+      let child1 = children[1], nextChild1 = nextChildren[1];
+      if (child1) { if (nextChild1) { child1.patch(nextChild1); } else { child1.remove(); children[1] = null; } }
+      else if (nextChild1) { nextChild1.mountBefore(refs[1]); children[1] = nextChild1; }
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with 2 subblocks 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with conditional child 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with conditional child 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with dynamic content 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
+      const data = this.data;
+      ref0.textContent = data[0];
       this.refs = [ref0];
-      this.data = [];
-      this.update(data);
-    }
-    update(data) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      if (nextData[0] !== currentData[0]) { refs[0].textContent = nextData[0]}
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      if (next[0] !== current[0]) { refs[0].textContent = next[0]}
+      this.data = next;
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with dynamic content and subblock 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
       let ref1 = this.el.firstChild.nextSibling.firstChild;
+      const data = this.data;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
+      ref1.textContent = data[0];
       this.refs = [ref0, ref1];
-      this.data = [];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
-      if (nextData[0] !== currentData[0]) { refs[1].textContent = nextData[0]}
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
+      if (next[0] !== current[0]) { refs[1].textContent = next[0]}
+      this.data = next;
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with dynamic content and subblock 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock with dynamic content 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock with dynamic content 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
+      const data = this.data;
+      ref0.textContent = data[0];
       this.refs = [ref0];
-      this.data = [];
-      this.update(data);
-    }
-    update(data) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      if (nextData[0] !== currentData[0]) { refs[0].textContent = nextData[0]}
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      if (next[0] !== current[0]) { refs[0].textContent = next[0]}
+      this.data = next;
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock with siblings 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data, children) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.nextSibling;
+      const children = this.children;
+      let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
-      this.children = [];
-      this.update(data, children);
-    }
-    update(data, children) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentChildren = this.children;
-      let currentChild0 = currentChildren[0], child0 = children[0];
-      if (currentChild0) { if (child0) { currentChild0.ops.patch(currentChild0, child0); } else { currentChild0.ops.remove(currentChild0); currentChildren[0] = null; } }
-      else if (child0) { child0.ops.mountBefore(child0, refs[0]); currentChildren[0] = child0 }
+      const children = this.children;
+      const nextChildren = block.children;
+      let child0 = children[0], nextChild0 = nextChildren[0];
+      if (child0) { if (nextChild0) { child0.patch(nextChild0); } else { child0.remove(); children[0] = null; } }
+      else if (nextChild0) { nextChild0.mountBefore(refs[0]); children[0] = nextChild0; }
     }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks block with subblock with siblings 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks elem block can be removed 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks simple block with multiple roots 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks simple block with multiple roots 2`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;
 
 exports[`text and elem blocks simple elem block 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor() {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
+      anchor.before(this.el);
+    },
+    patch(block) {
     }
-    update() {
-    }
-  }
+  };
 }"
 `;

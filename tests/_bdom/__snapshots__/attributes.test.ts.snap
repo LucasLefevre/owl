@@ -1,45 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`class attribute 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
+      const data = this.data;
+      updateClass(ref0, null, data[0]);
       this.refs = [ref0];
-      this.data = [];
-      this.update(data);
-    }
-    update(data) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      if (nextData[0] !== currentData[0]) { updateClass(refs[0], currentData[0], nextData[0]); }
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      if (next[0] !== current[0]) { updateClass(refs[0], current[0], next[0]); }
+      this.data = next;
     }
-  }
+  };
 }"
 `;
 
 exports[`simple attribute 1`] = `
-"function anonymous(template, updateClass
+"function anonymous(template, updateClass, handler
 ) {
-  return class Builder {
-    constructor(data) {
+  return {
+    mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
+      const data = this.data;
+      let value0 = data[0]; ref0.setAttribute(\\"hello\\", value0 === true ? \\"\\" : value0);
       this.refs = [ref0];
-      this.data = [];
-      this.update(data);
-    }
-    update(data) {
+      anchor.before(this.el);
+    },
+    patch(block) {
+      if (this === block) return;
       const refs = this.refs;
-      const currentData = this.data;
-      const nextData = data.data;
-      if (nextData[0] !== currentData[0]) { let value = nextData[0]; refs[0].setAttribute(\\"hello\\", value === true ? \\"\\" : value);}
-      this.data = nextData;
+      const current = this.data;
+      const next = block.data;
+      if (next[0] !== current[0]) { let value = next[0]; refs[0].setAttribute(\\"hello\\", value === true ? \\"\\" : value);}
+      this.data = next;
     }
-  }
+  };
 }"
 `;

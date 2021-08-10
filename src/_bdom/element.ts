@@ -1,36 +1,38 @@
-import { Anchor, Block, Builder, Operations } from "./types";
+import { Block } from "./types";
 
-// -----------------------------------------------------------------------------
-//  Element blocks
-// -----------------------------------------------------------------------------
+export interface BlockElem extends Block<BlockElem> {
+  data: any[];
+  children: Block[];
+  refs?: (HTMLElement | Text)[];
+}
 
+type BlockBuilder = (data?: any[], children?: any[]) => BlockElem;
 
-const ELEMENT_OPS: Operations = {
-  mountBefore(block: any, anchor: Anchor) {
-    const data = block.data;
-    const builder = new data.builder(data, block.content);
-    data.builder = builder;
-    const el = builder.el;
-    anchor.before(el);
-    block.el = el;
-  },
-  patch(block1: any, block2: any) {
-    if (block1 === block2) {
-      return;
-    }
-    (block1 as any).data.builder.update((block2 as any).data, block2.content);
-  },
-  moveBefore(block: any, anchor: any) {
-    anchor.before(block.el!);
-  },
-  remove(block: any) {
-    const el = block.el!;
-    el.parentElement!.removeChild(el);
-  },
-  firstChildNode(block: any): ChildNode | null {
-    return block.el;
-  },
-};
+// const mountBefore = (build: BlockElem["build"]): BlockElem["mountBefore"] =>  {
+//   return function mountBefore(this: BlockElem, anchor: any) {
+//     this.build();
+//     anchor.before(this.el);
+//   }
+// };
+
+// function  patch(block1: any, block2: any) {
+//     if (block1 === block2) {
+//       return;
+//     }
+//     (block1 as any).data.builder.update((block2 as any).data, block2.content);
+//   },
+function moveBefore(this: BlockElem, anchor: any) {
+  anchor.before(this.el!);
+}
+
+function remove(this: BlockElem) {
+  const el = this.el!;
+  el.parentElement!.removeChild(el);
+}
+
+function firstChildNode(this: BlockElem): ChildNode | null {
+  return this.el;
+}
 
 // -----------------------------------------------------------------------------
 //  makeBuilder
@@ -108,9 +110,14 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
 
 interface CompiledOutput {
   template: HTMLElement;
-  fn: Function;
+  builder: (
+    template: HTMLElement,
+    updateClass: any,
+    handler: any
+  ) => { mountBefore: BlockElem["mountBefore"]; patch: BlockElem["patch"] };
   hasChild: boolean;
 }
+
 export function _compileBlock(str: string): CompiledOutput {
   const info: BuilderContext["info"] = [];
   const ctx: BuilderContext = {
@@ -128,10 +135,10 @@ export function _compileBlock(str: string): CompiledOutput {
   const hasHandler = ctx.hasHandler;
 
   // console.log(context)
-  const signature = hasChild ? "data, children" : isDynamic || hasHandler ? "data" : "";
+  // const signature = hasChild ? "data, children" : isDynamic || hasHandler ? "data" : "";
   const code: string[] = [
-    `  return class Builder {`,
-    `    constructor(${signature}) {`,
+    `  return {`,
+    `    mountBefore(anchor) {`,
     `      this.el = template.cloneNode(true);`,
   ];
 
@@ -140,47 +147,90 @@ export function _compileBlock(str: string): CompiledOutput {
     for (let i = 0; i < info.length; i++) {
       code.push(`      let ref${i} = this.${info[i].path};`);
     }
+
+    if (isDynamic) {
+      code.push(`      const data = this.data;`);
+    }
+    if (hasChild) {
+      code.push(`      const children = this.children;`);
+    }
+    if (hasHandler) {
+    }
+    //   code.push(`      const handler = this.handleEvent;`);
+
+    for (let i = 0; i < info.length; i++) {
+      const data = info[i];
+      const index = info[i].index;
+      switch (info[i].type) {
+        case "text":
+          code.push(`      ref${i}.textContent = data[${info[i].index}];`);
+          break;
+        case "attribute":
+          if (data.name === "class") {
+            code.push(`      updateClass(ref${i}, null, data[${index}]);`);
+          } else {
+            code.push(
+              `      let value${index} = data[${index}]; ref${i}.setAttribute("${data.name}", value${index} === true ? "" : value${index});`
+            );
+          }
+          break;
+        case "handler":
+          code.push(
+            `      ref${i}.addEventListener("${info[i].event}", handler.bind(this, ${info[i].index}));`
+          );
+          break;
+
+        case "child":
+          code.push(
+            `      let child${index} = children[${index}]; if (child${index}) { child${index}.mountBefore(ref${i}); }`
+          );
+      }
+    }
     code.push(
       `      this.refs = [${info.map((t: any, index: number) => `ref${index}`).join(", ")}];`
     );
   }
 
-  if (isDynamic || hasHandler) {
-    code.push(`      this.data = [];`);
-  }
-  if (hasChild) {
-    code.push(`      this.children = [];`);
-  }
-  if (hasHandler) {
-    // todo
-    code.push(`      const handler = this.handleEvent;`);
-    for (let i = 0; i < info.length; i++) {
-      if (info[i].type === "handler") {
-        code.push(
-          `      ref${i}.addEventListener("${info[i].event}", handler.bind(this, ${info[i].index}));`
-        );
-      }
-    }
-  }
-  if (info.length) {
-    code.push(`      this.update(${signature});`);
-  }
+  // if (isDynamic || hasHandler) {
+  //   code.push(`      this.data = [];`);
+  // }
+  // if (hasChild) {
+  //   code.push(`      this.children = [];`);
+  // }
+  // if (hasHandler) {
+  //   // todo
+  //   code.push(`      const handler = this.handleEvent;`);
+  //   for (let i = 0; i < info.length; i++) {
+  //     if (info[i].type === "handler") {
+  //       code.push(
+  //         `      ref${i}.addEventListener("${info[i].event}", handler.bind(this, ${info[i].index}));`
+  //       );
+  //     }
+  //   }
+  // }
 
   // end of constructor
-  code.push(`    }`);
-  code.push(`    update(${signature}) {`);
-
-  // update function
+  code.push(`      anchor.before(this.el);`);
+  // code.push(`    }`);
+  code.push(`    },`);
+  code.push(`    patch(block) {`);
   if (info.length) {
+    code.push(`      if (this === block) return;`);
     if (isDynamic || hasChild) {
       code.push(`      const refs = this.refs;`);
     }
     if (isDynamic || hasHandler) {
-      code.push(`      const currentData = this.data;`);
-      code.push(`      const nextData = data.data;`);
+      code.push(`      const current = this.data;`);
+      code.push(`      const next = block.data;`);
     }
+  }
+  // update function
+  if (info.length) {
+    //   if (isDynamic || hasHandler) {
+    //   }
     if (hasChild) {
-      code.push(`      const currentChildren = this.children;`);
+      code.push(`      const children = this.children;`);
+      code.push(`      const nextChildren = block.children;`);
     }
 
     for (let i = 0; i < info.length; i++) {
@@ -189,76 +239,87 @@ export function _compileBlock(str: string): CompiledOutput {
       switch (data.type) {
         case "text":
           code.push(
-            `      if (nextData[${index}] !== currentData[${index}]) { refs[${i}].textContent = nextData[${index}]}`
+            `      if (next[${index}] !== current[${index}]) { refs[${i}].textContent = next[${index}]}`
           );
           break;
         case "attribute":
           if (data.name === "class") {
             code.push(
-              `      if (nextData[${index}] !== currentData[${index}]) { updateClass(refs[${i}], currentData[${index}], nextData[${index}]); }`
+              `      if (next[${index}] !== current[${index}]) { updateClass(refs[${i}], current[${index}], next[${index}]); }`
             );
           } else {
             code.push(
-              `      if (nextData[${index}] !== currentData[${index}]) { let value = nextData[${index}]; refs[${i}].setAttribute("${data.name}", value === true ? "" : value);}`
+              `      if (next[${index}] !== current[${index}]) { let value = next[${index}]; refs[${i}].setAttribute("${data.name}", value === true ? "" : value);}`
             );
           }
           break;
         case "child":
           code.push(
-            `      let currentChild${index} = currentChildren[${index}], child${index} = children[${index}];`
+            `      let child${index} = children[${index}], nextChild${index} = nextChildren[${index}];`
           );
           code.push(
-            `      if (currentChild${index}) { if (child${index}) { currentChild${index}.ops.patch(currentChild${index}, child${index}); } else { currentChild${index}.ops.remove(currentChild${index}); currentChildren[${index}] = null; } }`
+            `      if (child${index}) { if (nextChild${index}) { child${index}.patch(nextChild${index}); } else { child${index}.remove(); children[${index}] = null; } }`
           );
           code.push(
-            `      else if (child${index}) { child${index}.ops.mountBefore(child${index}, refs[${i}]); currentChildren[${index}] = child${index} }`
+            `      else if (nextChild${index}) { nextChild${index}.mountBefore(refs[${i}]); children[${index}] = nextChild${index}; }`
           );
       }
     }
-    if (isDynamic || hasHandler) {
-      code.push(`      this.data = nextData;`);
-    }
   }
+  if (isDynamic || hasHandler) {
+    code.push(`      this.data = next;`);
+  }
+  // }
+  // code.push(`    }`);
+  // if (hasHandler) {
+  //   // todo: move handleEvent outside of compiled code (like updateClass)
+  //   code.push(`    handleEvent(n) {`);
+  //   code.push(`      const handler = this.data[n];`);
+  //   code.push(`      if (typeof handler === "function") {`);
+  //   code.push(`        handler();`);
+  //   code.push(`      } else {`);
+  //   code.push(`        const [owner, method] = handler;`);
+  //   code.push(`        owner[method]();`);
+  //   code.push(`      }`);
+  //   code.push(`    }`);
+  // }
   code.push(`    }`);
-  if (hasHandler) {
-    // todo: move handleEvent outside of compiled code (like updateClass)
-    code.push(`    handleEvent(n) {`);
-    code.push(`      const handler = this.data[n];`);
-    code.push(`      if (typeof handler === "function") {`);
-    code.push(`        handler();`);
-    code.push(`      } else {`);
-    code.push(`        const [owner, method] = handler;`);
-    code.push(`        owner[method]();`);
-    code.push(`      }`);
-    code.push(`    }`);
-  }
-  code.push(`  }`);
+  code.push(`  };`);
 
-  //   console.warn(code.join("\n"));
-  const wrapper = new Function("template, updateClass", code.join("\n"));
-  return { template, fn: wrapper, hasChild };
+  // console.warn(code.join("\n"));
+  const wrapper: any = new Function("template, updateClass, handler", code.join("\n"));
+  return { template, builder: wrapper, hasChild };
 }
 
-export function makeBlock(str: string): Builder {
-  const { template, fn, hasChild } = _compileBlock(str);
-  const block = fn(template, updateClass);
+export function makeBlock(str: string): BlockBuilder {
+  const { template, builder, hasChild } = _compileBlock(str);
+  const { mountBefore, patch } = builder(template, updateClass, handler);
   if (hasChild) {
     return (data: any[] = [], children: Block[] = []) => ({
-      ops: ELEMENT_OPS,
+      mountBefore,
+      patch,
+      moveBefore,
+      remove,
+      firstChildNode,
+      data,
+      children,
       el: undefined,
-      data: { builder: block, data},
-      content: children
-    })
+      key: undefined,
+    });
   } else {
     return (data: any[] = []) => ({
-      ops: ELEMENT_OPS,
+      mountBefore,
+      patch,
+      moveBefore,
+      remove,
+      firstChildNode,
+      data,
+      children: [],
       el: undefined,
-      data: { builder: block, data},
-      content: []
+      key: undefined
     });
   }
 }
-
 
 // -----------------------------------------------------------------------------
 // helpers
@@ -312,4 +373,14 @@ function toClassObj(expr: string | number | { [c: string]: any }) {
     result[words[i]] = true;
   }
   return result;
+}
+
+function handler(this: BlockElem, n: number) {
+  const handler = this.data[n];
+  if (typeof handler === "function") {
+    handler();
+  } else {
+    const [owner, method] = handler;
+    owner[method]();
+  }
 }

@@ -12,8 +12,8 @@ import { Block } from "../../src/_bdom/types";
 import { makeTestFixture } from "../helpers";
 
 function makeBlock(str: string) {
-  const { fn } = _compileBlock(str);
-  expect(fn.toString()).toMatchSnapshot();
+  const { builder } = _compileBlock(str);
+  expect(builder.toString()).toMatchSnapshot();
   return origMakeBlock(str);
 }
 
