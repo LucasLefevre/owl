@@ -8,31 +8,30 @@ export interface BlockElem extends Block<BlockElem> {
 
 type BlockBuilder = (data?: any[], children?: any[]) => BlockElem;
 
-// const mountBefore = (build: BlockElem["build"]): BlockElem["mountBefore"] =>  {
-//   return function mountBefore(this: BlockElem, anchor: any) {
-//     this.build();
-//     anchor.before(this.el);
-//   }
-// };
+class BaseBlock {
 
-// function  patch(block1: any, block2: any) {
-//     if (block1 === block2) {
-//       return;
-//     }
-//     (block1 as any).data.builder.update((block2 as any).data, block2.content);
-//   },
-function moveBefore(this: BlockElem, anchor: any) {
-  anchor.before(this.el!);
-}
+  el: HTMLElement | null = null;
+  data: any[];
+  children: Block[];
 
-function remove(this: BlockElem) {
+  constructor(data: any[], children: Block[]) {
+    this.data = data;
+    this.children = children;
+  }
+  moveBefore( anchor: any) {
+    anchor.before(this.el!);
+  }
+  
+remove() {
   const el = this.el!;
   el.parentElement!.removeChild(el);
 }
 
-function firstChildNode(this: BlockElem): ChildNode | null {
+firstChildNode(): ChildNode | null {
   return this.el;
 }
+}
+
 
 // -----------------------------------------------------------------------------
 //  makeBuilder
@@ -111,11 +110,11 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
 interface CompiledOutput {
   template: HTMLElement;
   builder: (
+    BaseBlock: any,
     template: HTMLElement,
     updateClass: any,
     handler: any
-  ) => { mountBefore: BlockElem["mountBefore"]; patch: BlockElem["patch"] };
-  hasChild: boolean;
+  ) => any;
 }
 
 export function _compileBlock(str: string): CompiledOutput {
@@ -137,7 +136,7 @@ export function _compileBlock(str: string): CompiledOutput {
   // console.log(context)
   // const signature = hasChild ? "data, children" : isDynamic || hasHandler ? "data" : "";
   const code: string[] = [
-    `  return {`,
+    `  return class BElem extends BaseBlock {`,
     `    mountBefore(anchor) {`,
     `      this.el = template.cloneNode(true);`,
   ];
@@ -212,7 +211,7 @@ export function _compileBlock(str: string): CompiledOutput {
   // end of constructor
   code.push(`      anchor.before(this.el);`);
   // code.push(`    }`);
-  code.push(`    },`);
+  code.push(`    }`);
   code.push(`    patch(block) {`);
   if (info.length) {
     code.push(`      if (this === block) return;`);
@@ -287,38 +286,21 @@ export function _compileBlock(str: string): CompiledOutput {
   code.push(`  };`);
 
   // console.warn(code.join("\n"));
-  const wrapper: any = new Function("template, updateClass, handler", code.join("\n"));
-  return { template, builder: wrapper, hasChild };
+  const wrapper: any = new Function("BaseBlock, template, updateClass, handler", code.join("\n"));
+  return { template, builder: wrapper };
 }
 
+
+
 export function makeBlock(str: string): BlockBuilder {
-  const { template, builder, hasChild } = _compileBlock(str);
-  const { mountBefore, patch } = builder(template, updateClass, handler);
-  if (hasChild) {
-    return (data: any[] = [], children: Block[] = []) => ({
-      mountBefore,
-      patch,
-      moveBefore,
-      remove,
-      firstChildNode,
-      data,
-      children,
-      el: undefined,
-      key: undefined,
-    });
-  } else {
-    return (data: any[] = []) => ({
-      mountBefore,
-      patch,
-      moveBefore,
-      remove,
-      firstChildNode,
-      data,
-      children: [],
-      el: undefined,
-      key: undefined
-    });
-  }
+  const { template, builder } = _compileBlock(str);
+  const BlockElem = builder(BaseBlock, template, updateClass, handler);
+    return (data: any[] = [], children: Block[] = []) => new BlockElem(data, children);
+}
+
+export function makeBlockClass(str: string): any {
+  const { template, builder } = _compileBlock(str);
+  return builder(BaseBlock, template, updateClass, handler);
 }
 
 // -----------------------------------------------------------------------------

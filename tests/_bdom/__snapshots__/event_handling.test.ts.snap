@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`simple event handling  1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
       ref0.addEventListener(\\"click\\", handler.bind(this, 0));
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const current = this.data;
@@ -22,16 +22,16 @@ exports[`simple event handling  1`] = `
 `;
 
 exports[`simple event handling, with function 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
       ref0.addEventListener(\\"click\\", handler.bind(this, 0));
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const current = this.data;

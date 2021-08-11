@@ -43,10 +43,10 @@ describe("text and elem blocks", () => {
   test("simple elem block", async () => {
     const block = makeBlock("<div>foo</div>");
     const tree = block();
-    expect(tree.el).toBe(undefined);
+    expect(tree.el).toBe(null);
 
     mount(tree, fixture);
-    expect(tree.el).not.toBe(undefined);
+    expect(tree.el).not.toBe(null);
     expect(fixture.innerHTML).toBe("<div>foo</div>");
   });
 

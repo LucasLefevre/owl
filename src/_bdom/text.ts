@@ -6,43 +6,44 @@ export interface BlockText extends Block<BlockText> {
 }
 
 export function text(text: string): BlockText {
-  return {
-    mountBefore,
-    patch,
-    moveBefore,
-    remove,
-    firstChildNode,
-    el: null,
-    text,
-  };
+  return new BText(text);
 }
 
-function mountBefore(this: BlockText, anchor: Anchor) {
-  let el = document.createTextNode(this.text);
-  this.el = el;
-  anchor.before(el);
-}
+export class BText implements Block<BlockText> {
+  text: string;
+  el: Text | null = null;
 
-function patch(this: BlockText, block: BlockText) {
-  if (this === block) {
-    return;
-  }
-  let text = block.text as any;
-  if (this.text !== text) {
+  constructor(text: string) {
     this.text = text;
-    this.el!.textContent = text;
   }
-}
 
-function moveBefore(this: BlockText, anchor: any) {
-  anchor.before(this.el);
-}
+  mountBefore(anchor: Anchor) {
+    let el = document.createTextNode(this.text);
+    this.el = el;
+    anchor.before(el);
+  }
 
-function remove(this: BlockText) {
-  const el = this.el!;
-  el.parentElement!.removeChild(el);
-}
+  patch(block: BText) {
+    if (this === block) {
+      return;
+    }
+    let text = block.text as any;
+    if (this.text !== text) {
+      this.text = text;
+      this.el!.textContent = text;
+    }
+  }
 
-function firstChildNode(this: BlockText): ChildNode | null {
-  return this.el;
+  moveBefore(anchor: any) {
+    anchor.before(this.el);
+  }
+
+  remove() {
+    const el = this.el!;
+    el.parentElement!.removeChild(el);
+  }
+
+  firstChildNode(): ChildNode | null {
+    return this.el;
+  }
 }

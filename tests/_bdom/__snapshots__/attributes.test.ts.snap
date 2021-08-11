@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`class attribute 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
@@ -11,7 +11,7 @@ exports[`class attribute 1`] = `
       updateClass(ref0, null, data[0]);
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -25,9 +25,9 @@ exports[`class attribute 1`] = `
 `;
 
 exports[`simple attribute 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el;
@@ -35,7 +35,7 @@ exports[`simple attribute 1`] = `
       let value0 = data[0]; ref0.setAttribute(\\"hello\\", value0 === true ? \\"\\" : value0);
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;

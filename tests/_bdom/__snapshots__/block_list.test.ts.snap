@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[` 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -11,7 +11,7 @@ exports[` 1`] = `
       ref0.textContent = data[0];
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -25,9 +25,9 @@ exports[` 1`] = `
 `;
 
 exports[` 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -35,7 +35,7 @@ exports[` 2`] = `
       ref0.textContent = data[0];
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -49,9 +49,9 @@ exports[` 2`] = `
 `;
 
 exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem) 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -59,7 +59,7 @@ exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem) 1`]
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -74,9 +74,9 @@ exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem) 1`]
 `;
 
 exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem, multi) 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -84,7 +84,7 @@ exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem, mul
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -99,9 +99,9 @@ exports[`adding/removing elements adds children: [] => [1,2,3] (inside elem, mul
 `;
 
 exports[`adding/removing elements remove children: [1,2,3] => [] (inside elem) 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -109,7 +109,7 @@ exports[`adding/removing elements remove children: [1,2,3] => [] (inside elem) 1
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -124,9 +124,9 @@ exports[`adding/removing elements remove children: [1,2,3] => [] (inside elem) 1
 `;
 
 exports[`list block: misc patching a list block inside an elem block 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -134,7 +134,7 @@ exports[`list block: misc patching a list block inside an elem block 1`] = `
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;

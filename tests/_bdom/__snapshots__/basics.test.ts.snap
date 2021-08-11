@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`text and elem blocks block with 2 dynamic text nodes 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
@@ -13,7 +13,7 @@ exports[`text and elem blocks block with 2 dynamic text nodes 1`] = `
       ref1.textContent = data[1];
       this.refs = [ref0, ref1];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -28,9 +28,9 @@ exports[`text and elem blocks block with 2 dynamic text nodes 1`] = `
 `;
 
 exports[`text and elem blocks block with 2 subblocks 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -40,7 +40,7 @@ exports[`text and elem blocks block with 2 subblocks 1`] = `
       let child1 = children[1]; if (child1) { child1.mountBefore(ref1); }
       this.refs = [ref0, ref1];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -58,13 +58,13 @@ exports[`text and elem blocks block with 2 subblocks 1`] = `
 `;
 
 exports[`text and elem blocks block with 2 subblocks 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -72,9 +72,9 @@ exports[`text and elem blocks block with 2 subblocks 2`] = `
 `;
 
 exports[`text and elem blocks block with conditional child 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
@@ -82,7 +82,7 @@ exports[`text and elem blocks block with conditional child 1`] = `
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -97,13 +97,13 @@ exports[`text and elem blocks block with conditional child 1`] = `
 `;
 
 exports[`text and elem blocks block with conditional child 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -111,9 +111,9 @@ exports[`text and elem blocks block with conditional child 2`] = `
 `;
 
 exports[`text and elem blocks block with dynamic content 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.firstChild;
@@ -121,7 +121,7 @@ exports[`text and elem blocks block with dynamic content 1`] = `
       ref0.textContent = data[0];
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -135,9 +135,9 @@ exports[`text and elem blocks block with dynamic content 1`] = `
 `;
 
 exports[`text and elem blocks block with dynamic content and subblock 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -148,7 +148,7 @@ exports[`text and elem blocks block with dynamic content and subblock 1`] = `
       ref1.textContent = data[0];
       this.refs = [ref0, ref1];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -167,13 +167,13 @@ exports[`text and elem blocks block with dynamic content and subblock 1`] = `
 `;
 
 exports[`text and elem blocks block with dynamic content and subblock 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -181,9 +181,9 @@ exports[`text and elem blocks block with dynamic content and subblock 2`] = `
 `;
 
 exports[`text and elem blocks block with subblock 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -191,7 +191,7 @@ exports[`text and elem blocks block with subblock 1`] = `
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -206,13 +206,13 @@ exports[`text and elem blocks block with subblock 1`] = `
 `;
 
 exports[`text and elem blocks block with subblock 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -220,9 +220,9 @@ exports[`text and elem blocks block with subblock 2`] = `
 `;
 
 exports[`text and elem blocks block with subblock with dynamic content 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -230,7 +230,7 @@ exports[`text and elem blocks block with subblock with dynamic content 1`] = `
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -245,9 +245,9 @@ exports[`text and elem blocks block with subblock with dynamic content 1`] = `
 `;
 
 exports[`text and elem blocks block with subblock with dynamic content 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild;
@@ -255,7 +255,7 @@ exports[`text and elem blocks block with subblock with dynamic content 2`] = `
       ref0.textContent = data[0];
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -269,9 +269,9 @@ exports[`text and elem blocks block with subblock with dynamic content 2`] = `
 `;
 
 exports[`text and elem blocks block with subblock with siblings 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       let ref0 = this.el.firstChild.nextSibling;
@@ -279,7 +279,7 @@ exports[`text and elem blocks block with subblock with siblings 1`] = `
       let child0 = children[0]; if (child0) { child0.mountBefore(ref0); }
       this.refs = [ref0];
       anchor.before(this.el);
-    },
+    }
     patch(block) {
       if (this === block) return;
       const refs = this.refs;
@@ -294,13 +294,13 @@ exports[`text and elem blocks block with subblock with siblings 1`] = `
 `;
 
 exports[`text and elem blocks block with subblock with siblings 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -308,13 +308,13 @@ exports[`text and elem blocks block with subblock with siblings 2`] = `
 `;
 
 exports[`text and elem blocks elem block can be removed 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -322,13 +322,13 @@ exports[`text and elem blocks elem block can be removed 1`] = `
 `;
 
 exports[`text and elem blocks simple block with multiple roots 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -336,13 +336,13 @@ exports[`text and elem blocks simple block with multiple roots 1`] = `
 `;
 
 exports[`text and elem blocks simple block with multiple roots 2`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
@@ -350,13 +350,13 @@ exports[`text and elem blocks simple block with multiple roots 2`] = `
 `;
 
 exports[`text and elem blocks simple elem block 1`] = `
-"function anonymous(template, updateClass, handler
+"function anonymous(BaseBlock, template, updateClass, handler
 ) {
-  return {
+  return class BElem extends BaseBlock {
     mountBefore(anchor) {
       this.el = template.cloneNode(true);
       anchor.before(this.el);
-    },
+    }
     patch(block) {
     }
   };
