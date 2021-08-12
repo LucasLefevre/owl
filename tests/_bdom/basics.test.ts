@@ -169,6 +169,15 @@ describe("text and elem blocks", () => {
     patch(tree, block1(["foo"], [block2()]));
     expect(fixture.innerHTML).toBe("<div><p>sub block</p><p>foo</p></div>");
   });
+
+  test.only("block with multiple references", async () => {
+    const block1 = makeBlock("<div><owl-text-0/><p><owl-text-1/><owl-text-2/></p><owl-text-3/></div>");
+    const tree = block1(["1", "2", "3", "4"]);
+
+    mount(tree, fixture);
+    expect(fixture.innerHTML).toBe("<div>1<p>23</p>4</div>");
+  });
+
 });
 
 describe("misc", () => {

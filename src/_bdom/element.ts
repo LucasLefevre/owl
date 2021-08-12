@@ -44,9 +44,10 @@ interface BuilderContext {
   info: {
     index: number;
     type: "text" | "child" | "handler" | "attribute";
-    path: string;
+    path: string[];
     event?: string;
     name?: string;
+    elemDefs: string[];
   }[];
 }
 
@@ -57,13 +58,13 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
       const tagName = (node as Element).tagName;
       if (tagName.startsWith("owl-text-")) {
         const index = parseInt(tagName.slice(9), 10);
-        ctx.info.push({ index, path: ctx.path.join("."), type: "text" });
+        ctx.info.push({ index, path: ctx.path.slice(), type: "text", elemDefs: [] });
         ctx.isDynamic = true;
         return document.createTextNode("");
       }
       if (tagName.startsWith("owl-child-")) {
         const index = parseInt(tagName.slice(10), 10);
-        ctx.info.push({ index, type: "child", path: ctx.path.join(".") });
+        ctx.info.push({ index, type: "child", path: ctx.path.slice(), elemDefs: [] });
         ctx.hasChild = true;
         return document.createTextNode("");
       }
@@ -74,11 +75,11 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
         const attrValue = attrs[i].value;
         if (attrName.startsWith("owl-handler-")) {
           const index = parseInt(attrName.slice(12), 10);
-          ctx.info.push({ index, path: ctx.path.join("."), type: "handler", event: attrValue });
+          ctx.info.push({ index, path: ctx.path.slice(), type: "handler", event: attrValue, elemDefs: [] });
           ctx.hasHandler = true;
         } else if (attrName.startsWith("owl-attribute-")) {
           const index = parseInt(attrName.slice(14), 10);
-          ctx.info.push({ index, path: ctx.path.join("."), type: "attribute", name: attrValue });
+          ctx.info.push({ index, path: ctx.path.slice(), type: "attribute", name: attrValue, elemDefs: [] });
           ctx.isDynamic = true;
         } else {
           result.setAttribute(attrs[i].name, attrValue);
@@ -143,9 +144,58 @@ export function _compileBlock(str: string): CompiledOutput {
 
   // preparing all internal refs
   if (info.length) {
-    for (let i = 0; i < info.length; i++) {
-      code.push(`      let ref${i} = this.${info[i].path};`);
-    }
+    // console.warn(info.map(i => i.path))
+      // Step 1: build tree of paths
+      const tree: any = {};
+      let i = 1;
+      for (let line of info) {
+        let current: any = tree;
+        let el: string = `this`;
+        for (let p of line.path.slice()) {
+          if (current[p]) {
+          } else {
+            current[p] = { firstChild: null, nextSibling: null, line };
+          }
+          if (current.firstChild && current.nextSibling && !current.name) {
+            current.name = `el${i++}`;
+            current.line.elemDefs.push(`      const ${current.name} = ${el};`);
+          }
+          el = `${current.name ? current.name : el}.${p}`;
+          current = current[p];
+          if (current.target && !current.name) {
+            current.name = `el${i++}`;
+            current.line.elemDefs.push(`      const ${current.name} = ${el};`);
+          }
+        }
+        current.target = true;
+      }
+      // console.warn(info);
+      for (let i = 0; i < info.length; i++) {
+        let line = info[i];
+        const { path, elemDefs } = line;
+          for (let elem of elemDefs) {
+          code.push(elem);
+        }
+        let current: any = tree;
+        let el = `this`;
+        for (let p of path.slice()) {
+          current = current[p];
+          if (current) {
+            if (current.name) {
+              el = current.name;
+            } else {
+              el = `${el}.${p}`;
+            }
+          } else {
+            el = `${el}.${p}`;
+          }
+        }
+        code.push(`      let ref${i} = ${el};`)
+      }
+
+    // for (let i = 0; i < info.length; i++) {
+    //   code.push(`      let ref${i} = this.${info[i].path};`);
+    // }
 
     if (isDynamic) {
       code.push(`      const data = this.data;`);
