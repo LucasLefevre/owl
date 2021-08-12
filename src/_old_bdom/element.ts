@@ -9,7 +9,6 @@ export interface BlockElem extends Block<BlockElem> {
 type BlockBuilder = (data?: any[], children?: any[]) => BlockElem;
 
 class BaseBlock {
-
   el: HTMLElement | null = null;
   data: any[];
   children: Block[];
@@ -18,20 +17,29 @@ class BaseBlock {
     this.data = data;
     this.children = children;
   }
-  moveBefore( anchor: any) {
+  moveBefore(anchor: any) {
     anchor.before(this.el!);
   }
-  
-remove() {
-  const el = this.el!;
-  el.parentElement!.removeChild(el);
-}
 
-firstChildNode(): ChildNode | null {
-  return this.el;
-}
-}
+  remove() {
+    const el = this.el!;
+    el.parentElement!.removeChild(el);
+  }
 
+  firstChildNode(): ChildNode | null {
+    return this.el;
+  }
+
+  handleEvent(n: number) {
+    const handler = this.data[n];
+    if (typeof handler === "function") {
+      handler();
+    } else {
+      const [owner, method] = handler;
+      owner[method]();
+    }
+  }
+}
 
 // -----------------------------------------------------------------------------
 //  makeBuilder
@@ -75,11 +83,23 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
         const attrValue = attrs[i].value;
         if (attrName.startsWith("owl-handler-")) {
           const index = parseInt(attrName.slice(12), 10);
-          ctx.info.push({ index, path: ctx.path.slice(), type: "handler", event: attrValue, elemDefs: [] });
+          ctx.info.push({
+            index,
+            path: ctx.path.slice(),
+            type: "handler",
+            event: attrValue,
+            elemDefs: [],
+          });
           ctx.hasHandler = true;
         } else if (attrName.startsWith("owl-attribute-")) {
           const index = parseInt(attrName.slice(14), 10);
-          ctx.info.push({ index, path: ctx.path.slice(), type: "attribute", name: attrValue, elemDefs: [] });
+          ctx.info.push({
+            index,
+            path: ctx.path.slice(),
+            type: "attribute",
+            name: attrValue,
+            elemDefs: [],
+          });
           ctx.isDynamic = true;
         } else {
           result.setAttribute(attrs[i].name, attrValue);
@@ -110,12 +130,7 @@ function toDom(node: ChildNode, ctx: BuilderContext): HTMLElement | Text | Comme
 
 interface CompiledOutput {
   template: HTMLElement;
-  builder: (
-    BaseBlock: any,
-    template: HTMLElement,
-    updateClass: any,
-    handler: any
-  ) => any;
+  builder: (BaseBlock: any, template: HTMLElement, updateClass: any) => any;
 }
 
 export function _compileBlock(str: string): CompiledOutput {
@@ -144,54 +159,60 @@ export function _compileBlock(str: string): CompiledOutput {
 
   // preparing all internal refs
   if (info.length) {
+    let refs: string[] = [];
     // console.warn(info.map(i => i.path))
-      // Step 1: build tree of paths
-      const tree: any = {};
-      let i = 1;
-      for (let line of info) {
-        let current: any = tree;
-        let el: string = `this`;
-        for (let p of line.path.slice()) {
-          if (current[p]) {
-          } else {
-            current[p] = { firstChild: null, nextSibling: null, line };
-          }
-          if (current.firstChild && current.nextSibling && !current.name) {
-            current.name = `el${i++}`;
-            current.line.elemDefs.push(`      const ${current.name} = ${el};`);
-          }
-          el = `${current.name ? current.name : el}.${p}`;
-          current = current[p];
-          if (current.target && !current.name) {
-            current.name = `el${i++}`;
-            current.line.elemDefs.push(`      const ${current.name} = ${el};`);
-          }
+    // Step 1: build tree of paths
+    const tree: any = {};
+    let i = 1;
+    for (let line of info) {
+      let current: any = tree;
+      let el: string = `this`;
+      for (let p of line.path.slice()) {
+        if (current[p]) {
+        } else {
+          current[p] = { firstChild: null, nextSibling: null, line };
         }
-        current.target = true;
+        if (current.firstChild && current.nextSibling && !current.name) {
+          current.name = `el${i++}`;
+          current.line.elemDefs.push(`      const ${current.name} = ${el};`);
+        }
+        el = `${current.name ? current.name : el}.${p}`;
+        current = current[p];
+        if (current.target && !current.name) {
+          current.name = `el${i++}`;
+          current.line.elemDefs.push(`      const ${current.name} = ${el};`);
+        }
       }
-      // console.warn(info);
-      for (let i = 0; i < info.length; i++) {
-        let line = info[i];
-        const { path, elemDefs } = line;
-          for (let elem of elemDefs) {
-          code.push(elem);
-        }
-        let current: any = tree;
-        let el = `this`;
-        for (let p of path.slice()) {
-          current = current[p];
-          if (current) {
-            if (current.name) {
-              el = current.name;
-            } else {
-              el = `${el}.${p}`;
-            }
+      current.target = true;
+    }
+    // console.warn(info);
+    for (let i = 0; i < info.length; i++) {
+      let line = info[i];
+      const { path, elemDefs } = line;
+      for (let elem of elemDefs) {
+        code.push(elem);
+      }
+      let current: any = tree;
+      let el = `this`;
+      for (let p of path.slice()) {
+        current = current[p];
+        if (current) {
+          if (current.name) {
+            el = current.name;
           } else {
             el = `${el}.${p}`;
           }
+        } else {
+          el = `${el}.${p}`;
         }
-        code.push(`      let ref${i} = ${el};`)
       }
+      if (el.includes(".")) {
+        code.push(`      let ref${i} = ${el};`);
+        refs.push(`ref${i}`);
+      } else {
+        refs.push(el);
+      }
+    }
 
     // for (let i = 0; i < info.length; i++) {
     //   code.push(`      let ref${i} = this.${info[i].path};`);
@@ -204,39 +225,39 @@ export function _compileBlock(str: string): CompiledOutput {
       code.push(`      const children = this.children;`);
     }
     if (hasHandler) {
+      // code.push(`      const handler = this.handleEvent.bind(this);`);
     }
-    //   code.push(`      const handler = this.handleEvent;`);
 
     for (let i = 0; i < info.length; i++) {
       const data = info[i];
       const index = info[i].index;
       switch (info[i].type) {
         case "text":
-          code.push(`      ref${i}.textContent = data[${info[i].index}];`);
+          code.push(`      ${refs[i]}.textContent = data[${info[i].index}];`);
           break;
         case "attribute":
           if (data.name === "class") {
-            code.push(`      updateClass(ref${i}, null, data[${index}]);`);
+            code.push(`      updateClass(${refs[i]}, null, data[${index}]);`);
           } else {
             code.push(
-              `      let value${index} = data[${index}]; ref${i}.setAttribute("${data.name}", value${index} === true ? "" : value${index});`
+              `      let value${index} = data[${index}]; ${refs[i]}.setAttribute("${data.name}", value${index} === true ? "" : value${index});`
             );
           }
           break;
         case "handler":
           code.push(
-            `      ref${i}.addEventListener("${info[i].event}", handler.bind(this, ${info[i].index}));`
+            `      ${refs[i]}.addEventListener("${info[i].event}", ev => this.handleEvent(${info[i].index}));`
           );
           break;
 
         case "child":
           code.push(
-            `      let child${index} = children[${index}]; if (child${index}) { child${index}.mountBefore(ref${i}); }`
+            `      let child${index} = children[${index}]; if (child${index}) { child${index}.mountBefore(${refs[i]}); }`
           );
       }
     }
     code.push(
-      `      this.refs = [${info.map((t: any, index: number) => `ref${index}`).join(", ")}];`
+      `      this.refs = [${info.map((t: any, index: number) => `${refs[index]}`).join(", ")}];`
     );
   }
 
@@ -336,21 +357,19 @@ export function _compileBlock(str: string): CompiledOutput {
   code.push(`  };`);
 
   // console.warn(code.join("\n"));
-  const wrapper: any = new Function("BaseBlock, template, updateClass, handler", code.join("\n"));
+  const wrapper: any = new Function("BaseBlock, template, updateClass", code.join("\n"));
   return { template, builder: wrapper };
 }
 
-
-
 export function makeBlock(str: string): BlockBuilder {
   const { template, builder } = _compileBlock(str);
-  const BlockElem = builder(BaseBlock, template, updateClass, handler);
-    return (data: any[] = [], children: Block[] = []) => new BlockElem(data, children);
+  const BlockElem = builder(BaseBlock, template, updateClass);
+  return (data: any[] = [], children: Block[] = []) => new BlockElem(data, children);
 }
 
 export function makeBlockClass(str: string): any {
   const { template, builder } = _compileBlock(str);
-  return builder(BaseBlock, template, updateClass, handler);
+  return builder(BaseBlock, template, updateClass);
 }
 
 // -----------------------------------------------------------------------------
@@ -405,14 +424,4 @@ function toClassObj(expr: string | number | { [c: string]: any }) {
     result[words[i]] = true;
   }
   return result;
-}
-
-function handler(this: BlockElem, n: number) {
-  const handler = this.data[n];
-  if (typeof handler === "function") {
-    handler();
-  } else {
-    const [owner, method] = handler;
-    owner[method]();
-  }
 }

@@ -1,62 +1,62 @@
-import { Anchor, Block } from "./types";
+import type { BNode } from "./index";
 
-export interface BlockList extends Block<BlockList> {
-  blocks: Block[];
-  isOnlyChild: boolean;
-  hasNoComponent: boolean;
-  anchor: any;
-}
+const getDescriptor = (o: any, p: any) => Object.getOwnPropertyDescriptor(o, p)!;
+const nodeProto = Node.prototype;
+
+const nodeInsertBefore = nodeProto.insertBefore;
+const nodeAppendChild = nodeProto.appendChild;
+const nodeRemoveChild = nodeProto.removeChild;
+const nodeSetTextContent = getDescriptor(nodeProto, "textContent").set!;
 
 // -----------------------------------------------------------------------------
-//  List blocks
+// List Node
 // -----------------------------------------------------------------------------
 
-export function list(
-  blocks: Block[],
-  isOnlyChild: boolean = false,
-  hasNoComponent: boolean = false
-): BlockList {
-  return new BList(blocks, isOnlyChild, hasNoComponent);
-}
+class BNodeList {
+  children: BNode[];
+  anchor: Node | undefined;
+  parentEl?: HTMLElement | undefined;
+  singleNode?: boolean | undefined;
 
-export class BList implements Block<BlockList> {
-  blocks: Block[];
-  isOnlyChild: boolean;
-  hasNoComponent: boolean;
-  anchor: any;
-
-  constructor(blocks: Block[], isOnlyChild: boolean, hasNoComponent: boolean) {
-    this.blocks = blocks;
-    this.isOnlyChild = isOnlyChild;
-    this.hasNoComponent = hasNoComponent;
-    this.anchor = undefined;
+  constructor(children: BNode[]) {
+    this.children = children;
   }
 
-  mountBefore(anchor: Anchor) {
-    const children = this.blocks;
+  mount(parent: HTMLElement, afterNode: Node | null) {
+    const children = this.children;
     const _anchor = document.createTextNode("");
     this.anchor = _anchor;
-    anchor.before(_anchor);
+    nodeInsertBefore.call(parent, _anchor, afterNode);
     const l = children.length;
     if (l) {
+      const mount = children[0].mount;
       for (let i = 0; i < l; i++) {
-        children[i].mountBefore(_anchor);
+        mount.call(children[i], parent, _anchor);
       }
     }
+
+    this.parentEl = parent;
   }
 
-  patch(block: BList) {
-    if (this === block) {
+  moveBefore(other: BNodeList | null, afterNode: Node | null) {
+    // todo
+  }
+
+  patch(other: BNodeList) {
+    if (this === other) {
       return;
     }
-    const oldCh = this.blocks;
-    const newCh: Block[] = block.blocks;
+    const oldCh = this.children;
+    const newCh: BNode[] = other.children;
     if (newCh.length === 0 && oldCh.length === 0) {
       return;
     }
+    const proto = ((newCh[0] || oldCh[0]));
+    const {mount: childMount, patch: childPatch, remove: childRemove} = proto;
 
     const _anchor = this.anchor!;
-    const isOnlyChild = this.isOnlyChild;
+    const isOnlyChild = this.singleNode;
+    const parent = _anchor.parentElement!;
 
     // fast path: no new child => only remove
     if (newCh.length === 0 && isOnlyChild) {
@@ -66,24 +66,9 @@ export class BList implements Block<BlockList> {
       //   }
       // }
 
-      const parent = _anchor.parentElement!;
-      parent.textContent = "";
-      parent.appendChild(_anchor);
-      this.blocks = newCh;
-      return;
-    }
-
-    // fast path: only new child and isonlychild => can use fragment
-    if (oldCh.length === 0 && isOnlyChild) {
-      const frag = document.createDocumentFragment();
-      const parent = _anchor.parentElement!;
-      frag.appendChild(_anchor);
-      for (let i = 0, l = newCh.length; i < l; i++) {
-        newCh[i].mountBefore(_anchor);
-      }
-      parent.appendChild(frag);
-      parent.appendChild(_anchor);
-      this.blocks = newCh;
+      nodeSetTextContent.call(parent, "");
+      nodeAppendChild.call(parent, _anchor);
+      this.children = newCh;
       return;
     }
 
@@ -98,7 +83,7 @@ export class BList implements Block<BlockList> {
     let newEndBlock = newCh[newEndIdx];
 
     let mapping: any = undefined;
-    let noFullRemove = this.hasNoComponent;
+    // let noFullRemove = this.hasNoComponent;
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       // -------------------------------------------------------------------
@@ -111,14 +96,14 @@ export class BList implements Block<BlockList> {
       }
       // -------------------------------------------------------------------
       else if (oldStartBlock.key === newStartBlock.key) {
-        oldStartBlock.patch(newStartBlock);
+        childPatch.call(oldStartBlock, newStartBlock);
         newCh[newStartIdx] = oldStartBlock;
         oldStartBlock = oldCh[++oldStartIdx];
         newStartBlock = newCh[++newStartIdx];
       }
       // -------------------------------------------------------------------
       else if (oldEndBlock.key === newEndBlock.key) {
-        oldEndBlock.patch(newEndBlock);
+        childPatch.call(oldEndBlock, newEndBlock);
         newCh[newEndIdx] = oldEndBlock;
         oldEndBlock = oldCh[--oldEndIdx];
         newEndBlock = newCh[--newEndIdx];
@@ -126,10 +111,9 @@ export class BList implements Block<BlockList> {
       // -------------------------------------------------------------------
       else if (oldStartBlock.key === newEndBlock.key) {
         // bnode moved right
-        oldStartBlock.patch(newEndBlock);
+        childPatch.call(oldStartBlock, newEndBlock);
         const nextChild = newCh[newEndIdx + 1];
-        const anchor = nextChild ? nextChild.el || nextChild.firstChildNode()! : _anchor;
-        oldStartBlock.moveBefore(anchor);
+        oldStartBlock.moveBefore(nextChild, _anchor);
         newCh[newEndIdx] = oldStartBlock;
         oldStartBlock = oldCh[++oldStartIdx];
         newEndBlock = newCh[--newEndIdx];
@@ -137,10 +121,9 @@ export class BList implements Block<BlockList> {
       // -------------------------------------------------------------------
       else if (oldEndBlock.key === newStartBlock.key) {
         // bnode moved left
-        oldEndBlock.patch(newStartBlock);
+        childPatch.call(oldEndBlock, newStartBlock);
         const nextChild = oldCh[oldStartIdx];
-        const anchor = nextChild ? nextChild.el || nextChild.firstChildNode()! : _anchor;
-        oldEndBlock.moveBefore(anchor);
+        oldEndBlock.moveBefore(nextChild, _anchor);
         newCh[newStartIdx] = oldEndBlock;
         oldEndBlock = oldCh[--oldEndIdx];
         newStartBlock = newCh[++newStartIdx];
@@ -150,11 +133,11 @@ export class BList implements Block<BlockList> {
         mapping = mapping || createMapping(oldCh, oldStartIdx, oldEndIdx);
         let idxInOld = mapping[newStartBlock.key];
         if (idxInOld === undefined) {
-          newStartBlock.mountBefore(oldStartBlock.el || (oldStartBlock.firstChildNode()! as any));
+          childMount.call(newStartBlock, parent, oldStartBlock.firstNode() || null);
         } else {
           const elmToMove = oldCh[idxInOld];
-          elmToMove.moveBefore(oldStartBlock.el || (oldStartBlock.firstChildNode() as any));
-          elmToMove.patch(newStartBlock);
+          elmToMove.moveBefore(oldStartBlock, null);
+          childPatch.call(elmToMove, newStartBlock);
           newCh[newStartIdx] = elmToMove;
           oldCh[idxInOld] = null as any;
         }
@@ -165,48 +148,52 @@ export class BList implements Block<BlockList> {
     if (oldStartIdx <= oldEndIdx || newStartIdx <= newEndIdx) {
       if (oldStartIdx > oldEndIdx) {
         const nextChild = newCh[newEndIdx + 1];
-        const anchor = nextChild ? nextChild.el || nextChild.firstChildNode()! : _anchor;
+        const anchor = nextChild ? nextChild.firstNode() || null : _anchor;
+        const mount = proto.mount;
         for (let i = newStartIdx; i <= newEndIdx; i++) {
-          newCh[i].mountBefore(anchor as any);
+          mount.call(newCh[i], parent, anchor);
         }
       } else {
         for (let i = oldStartIdx; i <= oldEndIdx; i++) {
           let ch = oldCh[i];
           if (ch) {
-            if (noFullRemove) {
-              // remove(ch);
-              ch.remove();
-            } else {
-              ch.remove();
-            }
+            childRemove.call(ch);
+            // if (noFullRemove) {
+            // remove(ch);
+            // ch.remove();
+            // } else {
+            // ch.remove();
           }
         }
       }
     }
-    this.blocks = newCh;
+    this.children = newCh;
   }
-  moveBefore(anchor: any) {
-    // todo
-  }
+
   remove() {
-    const { isOnlyChild, anchor } = this;
-    if (isOnlyChild) {
-      anchor!.parentElement!.textContent = "";
+    const { parentEl, anchor } = this;
+    if (this.singleNode) {
+      nodeSetTextContent.call(parentEl, "");
     } else {
-      const children = this.blocks;
+      const children = this.children;
       const l = children.length;
       if (l) {
         for (let i = 0; i < l; i++) {
           children[i].remove();
         }
       }
-      anchor!.remove();
+      nodeRemoveChild.call(parentEl, anchor!);
     }
   }
-  firstChildNode(): ChildNode | null {
-    const first = this.blocks[0];
-    return first ? first.el || first.firstChildNode() : null;
+
+  firstNode(): Node | undefined {
+    const child = this.children[0];
+    return child ? child.firstNode() : undefined;
   }
+}
+
+export function list(children: BNode[]): BNode<BNodeList> {
+  return new BNodeList(children);
 }
 
 function createMapping(
