@@ -3,7 +3,7 @@ import {
   createBlock,
   html,
   list,
-  mount,
+  mount as blockMount,
   multi,
   patch,
   remove,
@@ -17,7 +17,7 @@ config.mainEventHandler = mainEventHandler;
 
 export const blockDom = {
   // bdom entry points
-  mount,
+  mount: blockMount,
   patch,
   remove,
   // bdom block types
@@ -28,34 +28,32 @@ export const blockDom = {
   createBlock,
   html,
 };
-// import { BList } from "./_old_bdom/list";
-// import { BMulti } from "./_bdom/multi";
-// import { BText } from "./_bdom/text";
+
 // import { makeBlockClass } from "./_old_bdom/element";
-// import { App } from "./app";
-// import { Component } from "./component";
+import { App } from "./app";
+import { Component } from "./component/component";
 // import { getCurrent } from "./b_node";
 
-// export { App, Component };
+export { App, Component };
 
-// export async function mount<T extends typeof Component>(
-//   C: T,
-//   target: HTMLElement
-// ): Promise<InstanceType<T>> {
-//   const app = new App(C);
-//   return app.mount(target);
-// }
+export async function mount<T extends typeof Component>(
+  C: T,
+  target: HTMLElement
+): Promise<InstanceType<T>> {
+  const app = new App(C);
+  return app.mount(target);
+}
 
 // export function useComponent(): Component {
 //   const current = getCurrent();
 //   return current!.component;
 // }
 
-// export { status } from "./status";
+export { status } from "./component/status";
 // export { Portal } from "./misc/portal";
 // export { Memo } from "./misc/memo";
 export { xml } from "./tags";
-// export { useState } from "./reactivity";
+export { useState } from "./reactivity";
 // export { useRef } from "./refs";
 // export { EventBus } from "./event_bus";
 

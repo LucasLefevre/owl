@@ -186,106 +186,85 @@ exports[`basics can handle empty props 2`] = `
 `;
 
 exports[`basics can mount a component with just some text 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new BText(\`just text\`);
-    return b1;
+    return text(\`just text\`);
   }
 }"
 `;
 
 exports[`basics can mount a component with no text 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new BText(\`\`);
-    return b1;
+    return text(\`\`);
   }
 }"
 `;
 
 exports[`basics can mount a simple component 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
-  class Block1 extends BStatic {
-    static el = elem(\`<span>simple vnode</span>\`);
-  }
+  let block1 = createBlock(\`<span>simple vnode</span>\`);
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new Block1();
-    return b1;
+    return block1();
   }
 }"
 `;
 
 exports[`basics can mount a simple component with multiple roots 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
-  class Block1 extends BStatic {
-    static el = elem(\`<span/>\`);
-  }
-  
-  class Block2 extends BStatic {
-    static el = elem(\`<div/>\`);
-  }
+  let block2 = createBlock(\`<span/>\`);
+  let block3 = createBlock(\`<div/>\`);
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new BMulti(2);
-    const b2 = b1.children[0] = new Block1();
-    const b3 = b1.children[1] = new Block2();
-    return b1;
+    let b2 = block2();
+    let b3 = block3();
+    return multi([b2, b3]);
   }
 }"
 `;
 
 exports[`basics can mount a simple component with props 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
-  class Block1 extends BElem {
-    static el = elem(\`<span><owl-text/></span>\`);
-    data = new Array(1);
-    update(prevData, data) {
-      setText(this.el.firstChild, prevData[0], data[0]);
-    }
-  }
+  let block1 = createBlock(\`<span><owl-text-0/></span>\`);
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new Block1();
-    b1.data[0] = ctx['props'].value;
-    return b1;
+    let d1 = ctx['props'].value;
+    return block1([d1]);
   }
 }"
 `;
 
 exports[`basics cannot mount on a documentFragment 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
-  class Block1 extends BStatic {
-    static el = elem(\`<div>content</div>\`);
-  }
+  let block1 = createBlock(\`<div>content</div>\`);
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new Block1();
-    return b1;
+    return block1();
   }
 }"
 `;
@@ -435,18 +414,15 @@ exports[`basics do not remove previously rendered dom if not necessary, variatio
 `;
 
 exports[`basics has no el after creation 1`] = `
-"function anonymous(Blocks, helpers
+"function anonymous(bdom, helpers
 ) {
-  let {BElem, BText, BNode, BCollection, BHtml, BMulti, BStatic, BDispatch} = Blocks;
-  let {elem, setText, withDefault, call, getTemplate, zero, callSlot, capture, toClassObj} = helpers;
+  let { text, createBlock, list, multi, html } = bdom;
+  let { withDefault, getTemplate, prepareList, withKey, zero, call } = helpers;
   
-  class Block1 extends BStatic {
-    static el = elem(\`<span>simple</span>\`);
-  }
+  let block1 = createBlock(\`<span>simple</span>\`);
   
   return function template(ctx, node, key = \\"\\") {
-    const b1 = new Block1();
-    return b1;
+    return block1();
   }
 }"
 `;

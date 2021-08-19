@@ -14,11 +14,6 @@ export class App<T extends typeof Component = any> extends TemplateSet {
     super();
     this.Root = Root;
     this.props = props;
-    // todo: remove this
-    if ((window as any).debug) {
-      (window as any).owl.apps = (window as any).owl.apps || [];
-      (window as any).owl.apps.push(this);
-    }
   }
 
   configure(params: any) {
@@ -37,9 +32,6 @@ export class App<T extends typeof Component = any> extends TemplateSet {
     const node = new BNode(this.Root, this.props, this);
     this.root = node;
     return node.mountComponent(target);
-
-    // const node = new OwlNode(this, this.Root, this.props);
-    // return node.mount(target);
   }
 
   destroy() {
