@@ -1,7 +1,7 @@
-import { Component } from "../component";
-import type { BNode } from "../b_node";
+import { Component } from "../component/component";
+import type { BNode } from "../component/component";
 import { xml } from "../tags";
-import { Fiber } from "../fibers";
+import { Fiber } from "../component/fibers";
 
 export class Memo extends Component {
   static template = xml`<t t-slot="default"/>`;

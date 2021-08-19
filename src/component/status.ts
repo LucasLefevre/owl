@@ -1,5 +1,9 @@
 import type { Component } from "./component";
 
+// -----------------------------------------------------------------------------
+//  Status
+// -----------------------------------------------------------------------------
+
 export const enum STATUS {
   NEW,
   MOUNTED, // is ready, and in DOM. It has a valid el

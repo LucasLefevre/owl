@@ -1,62 +1,6 @@
-// import { Blocks as BaseBlocks } from "./bdom";
-import { compileTemplate, Template } from "./compiler/index";
-import { globalTemplates } from "./tags";
-import { BNode } from "./b_node";
-import type { Component } from "./component";
-import { Scheduler } from "./scheduler";
-import { UTILS } from "./template_utils";
-import { blockDom } from ".";
-import { toggler } from "./bdom";
-// import { BDispatch } from "./bdom/b_dispatch";
-
-// const Blocks = {
-//   ...BaseBlocks,
-//   BNode,
-// };
-
-// -----------------------------------------------------------------------------
-//  TemplateSet
-// -----------------------------------------------------------------------------
-
-export class TemplateSet {
-  rawTemplates: { [name: string]: string } = Object.create(globalTemplates);
-  templates: { [name: string]: Template } = {};
-  utils: typeof UTILS;
-
-  constructor() {
-    const call = (subTemplate: string, ctx: any, parent: any) => {
-      const template = this.getTemplate(subTemplate);
-      return toggler(subTemplate, template(ctx, parent));
-    };
-
-    const getTemplate = (name: string) => this.getTemplate(name);
-    this.utils = Object.assign({}, UTILS, { getTemplate, call });
-  }
-
-  addTemplate(name: string, template: string, options: { allowDuplicate?: boolean } = {}) {
-    if (name in this.rawTemplates && !options.allowDuplicate) {
-      throw new Error(`Template ${name} already defined`);
-    }
-    this.rawTemplates[name] = template;
-  }
-
-  getTemplate(name: string): Template {
-    if (!(name in this.templates)) {
-      const rawTemplate = this.rawTemplates[name];
-      if (rawTemplate === undefined) {
-        throw new Error(`Missing template: "${name}"`);
-      }
-      const templateFn = compileTemplate(rawTemplate, name);
-
-      // first add a function to lazily get the template, in case there is a
-      // recursive call to the template name
-      this.templates[name] = (context, parent) => this.templates[name](context, parent);
-      const template = templateFn(blockDom, this.utils);
-      this.templates[name] = template;
-    }
-    return this.templates[name];
-  }
-}
+import { BNode, Component } from "./component/component";
+import { Scheduler } from "./component/scheduler";
+import { TemplateSet } from "./qweb/template_helpers";
 
 export class App<T extends typeof Component = any> extends TemplateSet {
   Root: T;

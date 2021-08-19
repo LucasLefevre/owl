@@ -1,5 +1,5 @@
 import type { BDom } from "../bdom";
-import { Dom, DomNode, domToString, DomType } from "./helpers";
+import { Dom, DomNode, domToString, DomType } from "./dom_helpers";
 import { compileExpr, compileExprToArray, interpolate, INTERP_REGEXP } from "./inline_expressions";
 import {
   AST,
@@ -21,12 +21,18 @@ import {
   ASTTSet,
   ASTType,
   parse,
-} from "./qweb_parser";
+} from "./parser";
 
 export type Template = (context: any, vnode: any, key?: string) => BDom;
 export type TemplateFunction = (blocks: any, utils: any) => Template;
 
 type BlockType = "block" | "text" | "multi" | "list" | "html";
+
+export function compileTemplate(template: string, name?: string): TemplateFunction {
+  const compiler = new QWebCompiler(template, name);
+  return compiler.compile();
+}
+
 // -----------------------------------------------------------------------------
 // BlockDescription
 // -----------------------------------------------------------------------------

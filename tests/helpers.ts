@@ -11,13 +11,12 @@
 //   onRender,
 //   Component,
 // } from "../src";
-import { TemplateSet } from "../src/app";
+import { TemplateSet, globalTemplates, UTILS } from "../src/qweb/template_helpers";
 import { blockDom } from "../src";
 import { BDom } from "../src/bdom";
 // import { mountBlock } from "../src/bdom/block";
-import { compileTemplate, Template } from "../src/compiler/index";
-import { globalTemplates, xml } from "../src/tags";
-import { UTILS } from "../src/template_utils";
+import { compileTemplate, Template } from "../src/qweb/compiler";
+import { xml } from "../src/tags";
 // import { UTILS } from "../src/template_utils";
 
 const mount = blockDom.mount;

@@ -1,7 +1,7 @@
-import type { BDom } from "./bdom";
-import { mount } from "./bdom";
+import type { BDom } from "../bdom";
+import { mount } from "../bdom";
+import type { BNode } from "./component";
 import { STATUS } from "./status";
-import { BNode } from "./b_node";
 // import { mountBlock } from "./bdom/block";
 
 export function makeChildFiber(node: BNode, parent: Fiber): Fiber {

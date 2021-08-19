@@ -1,3 +1,4 @@
+import { config } from "./config";
 import type { VNode } from "./index";
 import { toText } from "./text";
 
@@ -12,22 +13,6 @@ const nodeInsertBefore = nodeProto.insertBefore;
 const elementRemove = elementProto.remove;
 const nodeGetFirstChild = getDescriptor(nodeProto, "firstChild").get!;
 const nodeGetNextSibling = getDescriptor(nodeProto, "nextSibling").get!;
-
-export let defaultHandler = function (data: any, ev: Event) {
-  data(ev);
-};
-
-let mainHandler: typeof defaultHandler = defaultHandler;
-
-export function setupMainHandler(handler: typeof defaultHandler) {
-  mainHandler = handler;
-}
-
-let shouldNormalize = true;
-
-export function setupNormalize(value: boolean) {
-  shouldNormalize = value;
-}
 
 const NO_OP = () => {};
 
@@ -46,7 +31,7 @@ export function createBlock(str: string): BlockType {
 
   const doc = new DOMParser().parseFromString(str, "text/xml");
   const node = doc.firstChild!;
-  if (shouldNormalize) {
+  if (config.shouldNormalizeDom) {
     normalizeNode(node as any);
   }
   const template = processDescription(node, ctx) as any;
@@ -345,7 +330,7 @@ function createEventHandler(event: string) {
       }
       handlers[event] = data;
       this.addEventListener(event, (ev) => {
-        mainHandler(handlers[event], ev);
+        config.mainEventHandler(handlers[event], ev);
       });
     },
     update(this: HTMLElement, data: any) {

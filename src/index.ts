@@ -1,19 +1,37 @@
-import { list, mount, multi, patch, text, createBlock, html } from "./bdom";
-// import { BList } from "./_old_bdom/list";
-// import { BMulti } from "./_bdom/multi";
-// import { BText } from "./_bdom/text";
-// import { makeBlockClass } from "./_old_bdom/element";
-
-export const blockDom = {
+import {
+  config,
+  createBlock,
+  html,
   list,
   mount,
   multi,
   patch,
+  remove,
   text,
+  toggler,
+} from "./bdom";
+import { mainEventHandler } from "./component/handler";
+
+config.shouldNormalizeDom = false;
+config.mainEventHandler = mainEventHandler;
+
+export const blockDom = {
+  // bdom entry points
+  mount,
+  patch,
+  remove,
+  // bdom block types
+  list,
+  multi,
+  text,
+  toggler,
   createBlock,
   html,
 };
-
+// import { BList } from "./_old_bdom/list";
+// import { BMulti } from "./_bdom/multi";
+// import { BText } from "./_bdom/text";
+// import { makeBlockClass } from "./_old_bdom/element";
 // import { App } from "./app";
 // import { Component } from "./component";
 // import { getCurrent } from "./b_node";

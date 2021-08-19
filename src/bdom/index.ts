@@ -1,3 +1,5 @@
+export { config } from "./config";
+
 export { toggler } from "./toggler";
 export { createBlock } from "./block";
 export { list } from "./list";

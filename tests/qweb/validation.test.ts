@@ -1,4 +1,4 @@
-import { TemplateSet } from "../../src/app";
+import { TemplateSet } from "../../src/qweb/template_helpers";
 import { renderToString, TestContext, compile } from "../helpers";
 
 // -----------------------------------------------------------------------------
